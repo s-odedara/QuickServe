@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickServe Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4" style="border-top: 5px solid #0061f2;">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="#"><i class="fas fa-tools me-2"></i>QuickServe</a>
+            <div class="d-flex align-items-center">
+                <span class="text-dark me-3 d-none d-md-block">Welcome, <b>{{ username }}</b></span>
+                <a href="/logout" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold text-white shadow-sm">Logout ➜</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <div class="row mb-4">
+            {% set col_size = 'col-md-3' if is_admin else 'col-md-4' %}
+            
+            <div class="{{ col_size }}">
+                <div class="card text-center p-3 border-0 shadow-sm">
+                    <h2 class="text-primary fw-bold display-5 mb-0">{{ total }}</h2>
+                    <small class="text-muted text-uppercase fw-bold">Total Bookings</small>
+                </div>
+            </div>
+            
+            <div class="{{ col_size }}">
+                <div class="card text-center p-3 border-0 shadow-sm" style="border-left: 5px solid #ffc107 !important;">
+                    <h2 class="text-warning fw-bold display-5 mb-0">{{ pending }}</h2>
+                    <small class="text-muted text-uppercase fw-bold">Pending Actions</small>
+                </div>
+            </div>
+            
+            <div class="{{ col_size }}">
+                <div class="card text-center p-3 border-0 shadow-sm" style="border-left: 5px solid #28a745 !important;">
+                    <h2 class="text-success fw-bold display-5 mb-0">{{ completed }}</h2>
+                    <small class="text-muted text-uppercase fw-bold">Completed Jobs</small>
+                </div>
+            </div>
+            
+            {% if is_admin %}
+            <div class="{{ col_size }}">
+                <div class="card text-center p-3 bg-primary text-white border-0 shadow-sm">
+                    <h2 class="fw-bold display-5 mb-0">${{ revenue }}</h2>
+                    <small class="text-uppercase fw-bold text-white-50">Total Earnings</small>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ 'danger' if category=='error' else 'info' }} alert-dismissible fade show shadow-sm">
+                  {{ message }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% if not is_admin %}
+        <div class="card mb-5 border-0 shadow-sm">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="mb-0 text-primary fw-bold"><i class="fas fa-calendar-plus me-2"></i>Book a New Service</h5>
+            </div>
+            <div class="card-body">
+                <form action="/book_form" method="POST" class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold text-secondary">Select Service</label>
+                        <select name="service" class="form-select" required>
+                            <option value="" disabled selected>-- Choose --</option>
+                            <option value="AC Repair">AC Repair ($60)</option>
+                            <option value="Plumbing">Plumbing ($45)</option>
+                            <option value="Electrician">Electrician ($50)</option>
+                            <option value="House Cleaning">House Cleaning ($30)</option>
+                            <option value="Car Wash">Car Wash ($15)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold text-secondary">Preferred Date & Time</label>
+                        <input type="datetime-local" name="time" class="form-control" min="2024-01-01T00:00" max="2030-12-31T23:59" required>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0 text-secondary fw-bold">📋 Appointment List</h4>
+            <form action="/" method="GET" class="d-flex gap-2">
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="🔍 Search...">
+                <button type="submit" class="btn btn-sm btn-outline-primary">Search</button>
+                {% if is_admin %}
+                    <a href="{{ url_for('main.priority_view') }}" class="btn btn-sm btn-warning text-dark fw-bold shadow-sm">🔥 Urgent Jobs</a>
+                    <a href="{{ url_for('main.home') }}" class="btn btn-sm btn-secondary">Clear</a>
+                {% endif %}
+                <a href="/" class="btn btn-sm btn-light border">Reset</a>
+            </form>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            {% if is_admin %} <th>Customer</th> {% endif %}
+                            <th>Service Type</th>
+                            <th>Date & Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in appointments %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-muted">#{{ appt.id }}</td>
+                            {% if is_admin %} <td class="fw-bold text-primary">{{ appt.customer.username }}</td> {% endif %}
+                            <td>{{ appt.service_name }} <a href="/ticket/{{ appt.id }}" class="text-secondary ms-1"><i class="far fa-file-alt"></i></a></td>
+                            <td>{{ appt.appointment_time }}</td>
+                            <td>
+                                {% if appt.status == 'Completed' %} <span class="badge bg-success rounded-pill px-3">Completed</span>
+                                {% else %} <span class="badge bg-warning text-dark rounded-pill px-3">Pending</span> {% endif %}
+                            </td>
+                            <td>
+                                {% if appt.status == 'Completed' and appt.rating == None %}
+                                     <a href="/rate/{{ appt.id }}" class="btn btn-sm btn-outline-primary rounded-pill">⭐ Rate Now</a>
+                                {% elif appt.status == 'Completed' %}
+                                    <span class="text-warning">{% for i in range(appt.rating|int) %}⭐{% endfor %}</span>
+                                {% else %}
+                                    
+                                    {% if appt.payment_status == 'Unpaid' %}
+                                        <a href="/pay/{{ appt.id }}" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm"><i class="fas fa-qrcode"></i> Pay</a>
+                                    
+                                    {% elif appt.payment_status == 'Verification Pending' %}
+                                        {% if is_admin %}
+                                            <div class="d-flex flex-column gap-1">
+                                                <small class="text-muted" style="font-size: 0.7em;">UTR: {{ appt.transaction_id }}</small>
+                                                <a href="/approve_payment/{{ appt.id }}" class="btn btn-sm btn-success rounded-pill px-2">Verify</a>
+                                            </div>
+                                        {% else %}
+                                            <span class="badge bg-info text-dark"><i class="fas fa-clock"></i> Verifying...</span>
+                                        {% endif %}
+                                    
+                                    {% elif appt.payment_status == 'Paid' %}
+                                        <span class="badge bg-success"><i class="fas fa-check"></i> Paid</span>
+                                    {% endif %}
+
+                                    {% if is_admin and appt.payment_status == 'Paid' %}
+                                        <a href="/complete/{{ appt.id }}" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm">✔ Finish</a>
+                                    {% endif %}
+                                    
+                                    <a href="/edit/{{ appt.id }}" class="btn btn-sm btn-warning rounded-circle shadow-sm"><i class="fas fa-pen"></i></a>
+                                    <a href="/delete/{{ appt.id }}" class="btn btn-sm btn-danger rounded-circle shadow-sm"><i class="fas fa-trash"></i></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="7" class="text-center py-5 text-muted">No appointments found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

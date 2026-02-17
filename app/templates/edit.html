@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Appointment</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; background-color: #f4f4f9; display: flex; justify-content: center; }
+        .box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 400px; }
+        input, select, button { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        button { background-color: #ffc107; color: black; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #e0a800; }
+        a { text-decoration: none; color: #666; display: block; text-align: center; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>✏️ Edit Appointment</h2>
+        
+        <form action="/update/{{ appointment.id }}" method="POST">
+            
+            <label>Service:</label>
+            <select name="service" required>
+                <option value="AC Repair" {% if appointment.service_name == 'AC Repair' %}selected{% endif %}>AC Repair</option>
+                <option value="Plumbing" {% if appointment.service_name == 'Plumbing' %}selected{% endif %}>Plumbing</option>
+                <option value="Electrician" {% if appointment.service_name == 'Electrician' %}selected{% endif %}>Electrician</option>
+                <option value="House Cleaning" {% if appointment.service_name == 'House Cleaning' %}selected{% endif %}>House Cleaning</option>
+                <option value="Car Wash" {% if appointment.service_name == 'Car Wash' %}selected{% endif %}>Car Wash</option>
+            </select>
+
+            <label>New Date & Time:</label>
+            <input type="datetime-local" name="time" value="{{ appointment.appointment_time.strftime('%Y-%m-%dT%H:%M') }}" required>
+
+            <button type="submit">Update Changes</button>
+        </form>
+
+        <a href="/">Cancel & Go Back</a>
+    </div>
+</body>
+</html>

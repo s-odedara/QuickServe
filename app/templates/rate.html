@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rate Service</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; padding: 50px; background: #f4f4f9; }
+        .box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+        select, textarea, button { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        button { background-color: #ffc107; color: black; border: none; font-weight: bold; cursor: pointer; }
+        button:hover { background-color: #e0a800; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>⭐⭐ Rate Service ⭐⭐</h2>
+        <p>How was your <b>{{ appointment.service_name }}</b>?</p>
+
+        <form action="/save_rating/{{ appointment.id }}" method="POST">
+            <label>Select Stars:</label>
+            <select name="stars" required>
+                <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
+                <option value="4">⭐⭐⭐⭐ (Good)</option>
+                <option value="3">⭐⭐⭐ (Average)</option>
+                <option value="2">⭐⭐ (Poor)</option>
+                <option value="1">⭐ (Terrible)</option>
+            </select>
+
+            <label>Comment (Optional):</label>
+            <textarea name="review" placeholder="Tell us about your experience..."></textarea>
+
+            <button type="submit">Submit Review</button>
+        </form>
+        <a href="/">Skip</a>
+    </div>
+</body>
+</html>

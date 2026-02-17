@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt #{{ appointment.id }} - QuickServe</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        body { background-color: #e9ecef; }
+        .receipt-card {
+            max-width: 500px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 0;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        /* Dynamic Header Color based on Payment */
+        .receipt-header {
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header-paid { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
+        .header-unpaid { background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%); }
+        .header-pending { background: linear-gradient(135deg, #0061f2 0%, #6610f2 100%); }
+
+        .receipt-body { padding: 30px; }
+        .dashed-line { border-bottom: 2px dashed #ddd; margin: 20px 0; }
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #555;
+            font-size: 1.1em;
+        }
+        .total-row {
+            font-weight: bold;
+            font-size: 1.4em;
+            color: #000;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white; }
+            .receipt-card { box-shadow: none; border: 1px solid #ddd; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="receipt-card">
+            
+            <div class="receipt-header {% if appointment.payment_status == 'Paid' %}header-paid{% elif appointment.payment_status == 'Unpaid' %}header-unpaid{% else %}header-pending{% endif %}">
+                
+                {% if appointment.payment_status == 'Paid' %}
+                    <i class="fas fa-check-circle fa-4x mb-3"></i>
+                    <h2>Payment Receipt</h2>
+                {% else %}
+                    <i class="fas fa-file-invoice-dollar fa-4x mb-3"></i>
+                    <h2>Service Invoice</h2>
+                {% endif %}
+                
+                <p class="mb-0 opacity-75">QuickServe Service Center</p>
+            </div>
+
+            <div class="receipt-body">
+                
+                <div class="text-center mb-4">
+                    <small class="text-muted text-uppercase">Booking ID</small>
+                    <h3 class="fw-bold">#{{ appointment.id }}</h3>
+                </div>
+
+                <div class="dashed-line"></div>
+
+                <div class="receipt-row">
+                    <span>Customer:</span>
+                    <span class="fw-bold">{{ appointment.customer.username }}</span>
+                </div>
+                
+                <div class="receipt-row">
+                    <span>Service:</span>
+                    <span>{{ appointment.service_name }}</span>
+                </div>
+
+                <div class="receipt-row">
+                    <span>Date:</span>
+                    <span>{{ appointment.appointment_time.strftime('%Y-%m-%d') }}</span>
+                </div>
+
+                <div class="receipt-row">
+                    <span>Job Status:</span>
+                    <span class="badge bg-secondary text-uppercase">{{ appointment.status }}</span>
+                </div>
+
+                <div class="receipt-row">
+                    <span>Payment Status:</span>
+                    <span class="badge 
+                        {% if appointment.payment_status == 'Paid' %}bg-success
+                        {% elif appointment.payment_status == 'Unpaid' %}bg-danger
+                        {% else %}bg-info text-dark{% endif %} text-uppercase">
+                        {{ appointment.payment_status }}
+                    </span>
+                </div>
+
+                <div class="dashed-line"></div>
+
+                <div class="receipt-row total-row">
+                    {% if appointment.payment_status == 'Paid' %}
+                        <span>TOTAL PAID</span>
+                        <span class="text-success">₹{{ appointment.price }}</span>
+                    {% else %}
+                        <span>AMOUNT DUE</span>
+                        <span class="text-danger">₹{{ appointment.price }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="mt-4 text-center">
+                    <p class="small text-muted">Thank you for choosing QuickServe!</p>
+                    
+                    <div class="d-flex justify-content-center gap-2 mt-3 no-print">
+                        
+                        {% if appointment.payment_status == 'Unpaid' %}
+                            <a href="/pay/{{ appointment.id }}" class="btn btn-primary rounded-pill px-4">
+                                Pay Now
+                            </a>
+                        {% endif %}
+
+                        <button onclick="window.print()" class="btn btn-dark rounded-pill px-4">
+                            <i class="fas fa-print me-2"></i>Print
+                        </button>
+                        
+                        <a href="{{ url_for('main.home') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                            Back
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            <div style="height: 10px; background: repeating-linear-gradient(45deg, #fff, #fff 10px, #e9ecef 10px, #e9ecef 20px);"></div>
+
+        </div>
+    </div>
+
+</body>
+</html>

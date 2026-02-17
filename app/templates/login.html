@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Login - QuickServe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="login-bg"> 
+    <div class="container">
+        <div class="row justify-content-center" style="min-height: 100vh; align-items: center;">
+            <div class="col-md-4">
+                <div class="card shadow-lg border-0 rounded-4 p-4">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-user-lock fa-2x"></i>
+                            </div>
+                            <h3 class="fw-bold text-dark">Welcome Back</h3>
+                        </div>
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                          {% if messages %}
+                            {% for category, message in messages %}
+                              <div class="alert alert-danger text-center p-2 small">{{ message }}</div>
+                            {% endfor %}
+                          {% endif %}
+                        {% endwith %}
+                        <form action="/login" method="POST">
+                            <div class="form-floating mb-3">
+                                <input type="text" name="username" class="form-control" id="u" placeholder="User" required>
+                                <label for="u">Username</label>
+                            </div>
+                            <div class="form-floating mb-4">
+                                <input type="password" name="password" class="form-control" id="p" placeholder="Pass" required>
+                                <label for="p">Password</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold shadow-sm">Login Now</button>
+                        </form>
+                    </div>
+                    <div class="card-footer bg-white border-0 text-center pb-3">
+                        <small class="text-muted">New here?</small> <a href="/register" class="text-primary fw-bold text-decoration-none">Register</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

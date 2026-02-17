@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+}
+.login-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+/* RECEIPT STYLES */
+.receipt-card {
+    max-width: 500px;
+    margin: 50px auto;
+    background: #fff;
+    padding: 0;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+.receipt-header {
+    background: linear-gradient(135deg, #0061f2 0%, #00cba9 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+.receipt-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #555;
+    font-size: 1.1em;
+}
+@media print {
+    .no-print { display: none !important; }
+    body { background-color: white; }
+    .receipt-card { box-shadow: none; border: 1px solid #ddd; margin: 0; }
+}
